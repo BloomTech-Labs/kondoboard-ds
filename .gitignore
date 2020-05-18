@@ -1,0 +1,4 @@
+# ignores env files on my local machine
+*.env
+.env
+.venv
