@@ -63,3 +63,37 @@ We started with an Debian Buster based Docker image for Python 3.7 We then set a
 
 PYTHONDONTWRITEBYTECODE: Prevents Python from writing pyc files to disc (equivalent to python -B option)
 PYTHONUNBUFFERED: Prevents Python from buffering stdout and stderr (equivalent to python -u option)
+
+
+Update Debian Buster was not playing nice with the apk commands in the dockerfile 
+apk add --no-cache --virtual .build-deps build-base \
+        libressl-dev libffi-dev gcc musl-dev python3-dev \
+    && pip install --upgrade pip setuptools wheel \
+    && pip install -r /usr/src/app/requirements.txt \
+    && rm -rf /root/.cache/pip
+
+Switched to 3.7-alpine for making the apk commands work. 
+
+We can look into switching this to the debian equivalent commands if it turns out to be a better idea. 
+
+
+Follow Along: 
+Checkout Commit
+
+
+826c5db90f8c68a5900bb30eb57f454cf64c3748
+Creates skeleton for FastApi, creates docker skeleton, runs on localhost:8002/ping
+
+
+Run the base docker FastApi 
+docker-compose up -d --build
+
+
+navigate web browser to 
+http://localhost:8002/ping
+
+
+You'll also be able to view the interactive API documentation, powered by Swagger UI, at http://localhost:8002/docs:
+
+# Next 
+
