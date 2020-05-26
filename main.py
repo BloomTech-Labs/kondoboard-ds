@@ -17,10 +17,11 @@ app.add_middleware(
 @app.get("/")
 async def root():
     """
+    Fake News Detector API  
     Verifies the API is deployed, and links to the docs
     """
     return HTMLResponse("""
-    <h1>The Awesome Jobs API Lives Here</h1>
+    <h1>Fake News Detector API</h1>
     <p>Go to <a href="/docs">/docs</a> for documentation.</p>
     """)
 
