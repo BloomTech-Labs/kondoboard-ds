@@ -33,8 +33,3 @@ We created C4 diagrams to communicate the software architecture
 
 ## License
 ![License](./LICENSE)
-
-## Instructions-M
-``
-
-- Don't try to run docker container inside a conda environment. Might be obvious why not to some people, it gave me issues. Virtual environment inside a virtual environment inception nightmare. 
