@@ -38,12 +38,3 @@ We created C4 diagrams to communicate the software architecture
 ``
 
 - Don't try to run docker container inside a conda environment. Might be obvious why not to some people, it gave me issues. Virtual environment inside a virtual environment inception nightmare. 
-
-
-#TODO remove this note to self about requirements txt file 
-fastapi==0.46.0
-uvicorn==0.11.1
-
-# dev
-pytest==5.3.2
-requests==2.22.0
