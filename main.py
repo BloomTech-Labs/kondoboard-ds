@@ -14,13 +14,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/ping")
-def pong():
-    """
-    A test route 
-    """
-    return {"ping": "pong!"}
-
 @app.get("/")
 async def root():
     """
