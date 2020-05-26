@@ -1,0 +1,15 @@
+# ignores env files on my local machine
+*.env
+.env
+.venv
+.vscode
+.DS_Store
+
+
+# M Notes
+m_readme.md
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
