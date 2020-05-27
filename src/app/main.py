@@ -20,7 +20,7 @@ async def root():
     Verifies the API is deployed, and links to the docs
     """
     return HTMLResponse("""
-    <h1>Awesome Jobs API Lives Here</h1>
+    <h1>Kondoboard API</h1>
     <p>Go to <a href="/docs">/docs</a> for documentation.</p>
     """)
 
@@ -31,6 +31,9 @@ class Story(BaseModel):
 @app.post('/predict')
 async def predict(story: Story):
     """
+    THIS IS NOT TO BE USED. It is an example from Ryan Herr 
+    lecture that will be removed..
+
     Predicts nothing really. Leftover endpoint from testing 
 
     Naive baseline: Always predicts 'fake'
@@ -44,3 +47,4 @@ async def predict(story: Story):
         'prediction': 'fake', 
         'probability': 0.50
     }
+
