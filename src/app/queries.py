@@ -6,9 +6,26 @@ es_name = os.environ["ES_NAME"]
 es_pass = os.environ["ES_PASS"]
 es_endpoint = os.environ["ES_ENDPOINT"]
 
+def connect(query):
+    """
+    Defines elasticsearch connection
+    Connects to job index and search API
+    
+    Param query - 
+    the query to be ran
+
+    Output -
+    Elasticsearch response in json format
+    """
+    uri = f"https://{es_name}:{es_pass}@{es_endpoint}/jobs/_search"
+    headers ={"Content-Type": "application/json"}
+
+    response = requests.get(uri, headers=headers, data=query)
+    return response.json()
+
 def reformat(response_query):
     """
-    reformats elasticsearch query to remove unnecessary information
+    Reformats elasticsearch query to remove extra information
     """
 
     data = list()
@@ -24,6 +41,7 @@ def reformat(response_query):
     
     return {'jobs':data}
 
+
 def get_all_jobs():
     """Simple Elasticsearch query that will return all jobs"""
     
@@ -34,13 +52,7 @@ def get_all_jobs():
         }
     })
     
-    # define connection
-    uri = f"https://{es_name}:{es_pass}@{es_endpoint}/jobs/_search"
-    headers ={"Content-Type": "application/json"}
-
-    response = requests.get(uri, headers=headers, data=query)
-    response = response.json()
-    
+    response = connect(query)
     reformatted = reformat(response)
     
     return reformatted
