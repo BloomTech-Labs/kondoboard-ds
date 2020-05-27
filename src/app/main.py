@@ -56,3 +56,16 @@ async def search_all():
     """
     all = get_all_jobs()
     return all
+
+@app.get("/track/{track}")
+async def search_by_track():
+    """ 
+    Simple endpoint to return jobs recommended for
+    a specific track
+
+    NOTE: will currently return the same jobs as /all  
+    We will be updating this later
+    """
+    all = get_all_jobs()
+    return all
+
