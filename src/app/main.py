@@ -49,7 +49,7 @@ async def predict(story: Story):
         'probability': 0.50
     }
 
-@app.post("/all")
+@app.get("/all")
 async def search_all():
     """ 
     Simple endpoint to return all jobs
@@ -63,7 +63,7 @@ async def search_by_track():
     Simple endpoint to return jobs recommended for
     a specific track
 
-    NOTE: will currently return the same jobs as /all  
+    NOTE: will currently return the same jobs as endpoint /all  
     We will be updating this later
     """
     all = get_all_jobs()
@@ -75,7 +75,7 @@ async def search_custom():
     Endpiont to return custom search when user specifies
     the location and enters in keywords  
 
-    NOTE: will currently return the same jobs as /all  
+    NOTE: will currently return the same jobs as endpoint /all  
     We will be updating this later
     """
     all = get_all_jobs()
