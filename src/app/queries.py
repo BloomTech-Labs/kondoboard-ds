@@ -3,19 +3,23 @@ import json
 
 def get_all_jobs():
     """Simple Elasticsearch query that will return all jobs"""
+    
+    # define query
     query = json.dumps({
         "query": {
             "match_all": {}
         }
     })
+    
+    # define connection
     uri = f"https://{ES_USER}:{ES_PASS}@{ES_ENDPOINT}/jobs/_search"
     headers ={"Content-Type": "application/json"}
 
     response = requests.get(uri, headers=headers, data=query)
     response = response.json()
     
+    # format response
     data = list()
-
     for hit in response['hits']['hits']:
         data.append({
             'id': hit['_id'], 
@@ -26,6 +30,6 @@ def get_all_jobs():
             'location_raw': hit['_source']['location_raw'], 
             'geo_locat': hit['_source']['location_point']})
     
-    end = {'jobs':data}
+    reformatted = {'jobs':data}
     
-    return end
+    return reformatted

@@ -1,8 +1,9 @@
+import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-import pandas as pd
 from pydantic import BaseModel
+from .queries import get_all_jobs
 
 app = FastAPI()
 
@@ -48,3 +49,10 @@ async def predict(story: Story):
         'probability': 0.50
     }
 
+@app.post("/all")
+async def search_all():
+    """ 
+    Simple endpoint to return all jobs
+    """
+    all = get_all_jobs()
+    return all
