@@ -69,3 +69,14 @@ async def search_by_track():
     all = get_all_jobs()
     return all
 
+@app.get("/search/{search}/location/{location}")
+async def search_custom():
+    """
+    Endpiont to return custom search when user specifies
+    the location and enters in keywords  
+
+    NOTE: will currently return the same jobs as /all  
+    We will be updating this later
+    """
+    all = get_all_jobs()
+    return all
