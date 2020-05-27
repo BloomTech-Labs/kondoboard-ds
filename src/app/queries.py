@@ -2,7 +2,7 @@ import requests
 import json
 import os
 
-es_user = os.environ["ES_USER"]
+es_name = os.environ["ES_NAME"]
 es_pass = os.environ["ES_PASS"]
 es_endpoint = os.environ["ES_ENDPOINT"]
 
@@ -17,7 +17,7 @@ def get_all_jobs():
     })
     
     # define connection
-    uri = f"https://{es_user}:{es_pass}@{es_endpoint}/jobs/_search"
+    uri = f"https://{es_name}:{es_pass}@{es_endpoint}/jobs/_search"
     headers ={"Content-Type": "application/json"}
 
     response = requests.get(uri, headers=headers, data=query)
