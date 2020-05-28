@@ -1,8 +1,9 @@
+import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-import pandas as pd
-from pydantic import BaseModel
+from .queries import get_all_jobs
+from .models import Search, Track
 
 app = FastAPI()
 
@@ -19,28 +20,41 @@ async def root():
     """
     Verifies the API is deployed, and links to the docs
     """
-    return HTMLResponse("""
-    <h1>Awesome Jobs API Lives Here</h1>
+    return HTMLResponse(
+    """
+    <h1>Kondoboard API</h1>
     <p>Go to <a href="/docs">/docs</a> for documentation.</p>
     """)
 
-class Story(BaseModel):
-    title: str
-    text: str
-
-@app.post('/predict')
-async def predict(story: Story):
+@app.get("/all")
+async def search_all():
+    """ 
+    Get endpoint to return all jobs
     """
-    Predicts nothing really. Leftover endpoint from testing 
+    all = get_all_jobs()
+    return all
 
-    Naive baseline: Always predicts 'fake'
+@app.post("/search/")
+async def search_custom(search: Search):
     """
-    # Doesn't do anything with the request body yet,
-    # just verifies we can read it.
-    print(story)
-    X = pd.DataFrame([dict(story)])
-    print(X.to_markdown())
-    return {
-        'prediction': 'fake', 
-        'probability': 0.50
-    }
+    Endpoint to return custom search when user specifies
+    the location and enters in keywords  
+
+    NOTE: will currently return the same jobs as endpoint /all  
+    We will be updating this later
+    """
+
+    all = get_all_jobs()
+    return all
+
+@app.post("/track/")
+async def search_by_track(track: Track):
+    """ 
+    Simple endpoint to return jobs recommended for
+    a specific track
+
+    NOTE: will currently return the same jobs as endpoint /all  
+    We will be updating this later
+    """
+    all = get_all_jobs()
+    return all
