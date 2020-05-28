@@ -34,9 +34,12 @@ def reformat(response_query):
             'id': hit['_id'], 
             'source_url' : hit['_source']['post_url'], 
             'title': hit['_source']['title'], 
+            'company': hit['_source']['company'],
             'description': hit['_source']['description'], 
             'date_published': hit['_source']['publication_date'], 
             'location_raw': hit['_source']['location_raw'], 
+            'location_city': hit['_source']['location_city'],
+            'location_state': hit['_source']['location_state'], 
             'geo_locat': hit['_source']['location_point']})
     
     return {'jobs':data}
