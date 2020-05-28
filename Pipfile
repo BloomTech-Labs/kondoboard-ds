@@ -24,6 +24,7 @@ uvloop = "==0.14.0"
 websockets = "==8.1"
 requests = "*"
 pytest = "*"
+pipx = "*"
 
 [requires]
 python_version = "3.7"

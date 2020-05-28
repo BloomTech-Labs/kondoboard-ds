@@ -8,11 +8,13 @@ This repo contains the FastAPI application for Kondoboard, a platform that allow
 - [Install](#install) 
 - [Usage](#usage)
 - [Testing](#testing)
+-[API](#api)
 - [License](#license)
-- [Instructions-M](#instructions-m)
 
 
 ## Background
+```
+```
 
 ## Diagrams
 We created C4 diagrams to communicate the software architecture
@@ -23,13 +25,17 @@ We created C4 diagrams to communicate the software architecture
 ![Container](./diagrams/kondo_container.svg)
 
 ## Install
-``
-
+```
+```
 ## Usage
-``
-
+```
+```
 ## Testing
-``
+```
+```
+## API
+
+[FastAPI - Swagger documentation](http://kondoboard-ds-environment.eba-u7c3zdzn.us-east-1.elasticbeanstalk.com/docs)
 
 ## License
 ![License](./LICENSE)
