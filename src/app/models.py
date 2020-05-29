@@ -6,3 +6,4 @@ class Search(BaseModel):
 
 class Track(BaseModel):
     track: str
+    location: str = None
