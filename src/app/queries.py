@@ -37,8 +37,8 @@ def reformat(response_query):
             'company': hit['_source']['company'],
             'description': hit['_source']['description'], 
             'date_published': hit['_source']['publication_date'], 
-            'location_city': hit['_source']['location_city'],
-            'locatin_state': hit['_source']['location_state'],
+            'city': hit['_source']['location_city'],
+            'state': hit['_source']['location_state'],
             'geo_locat': hit['_source']['location_point']})
     
     return {'jobs':data}
