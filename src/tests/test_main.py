@@ -1,5 +1,6 @@
 from starlette.testclient import TestClient
 
+
 from app.main import app
 
 client = TestClient(app)
@@ -10,9 +11,16 @@ def test_ping(test_app):
     assert response.status_code == 404
     # assert response.json() == {"ping": "pong!"}
 
+
 def test_all(test_app):
     response = test_app.get("/all")
-    assert response.status_code ==200
+    assert response.status_code == 200
+
+
+# def test_track(test_app):
+#     response = test_app.post("/track/")
+#     assert response.status_code == 200
+
 
 # def test_track(test_app):
 #     response = test_app.post("/track/{track}")
