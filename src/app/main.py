@@ -15,16 +15,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 async def root():
     """
     Verifies the API is deployed, and links to the docs
     """
     return HTMLResponse(
-    """
+        """
     <h1>Kondoboard API</h1>
     <p>Go to <a href="/docs">/docs</a> for documentation.</p>
-    """)
+    """
+    )
+
 
 @app.get("/all")
 async def search_all():
@@ -33,6 +36,7 @@ async def search_all():
     """
     all = get_all_jobs()
     return all
+
 
 @app.post("/search/")
 async def search_custom(search: Search):
@@ -46,6 +50,7 @@ async def search_custom(search: Search):
 
     all = get_all_jobs()
     return all
+
 
 @app.post("/track/")
 async def search_by_track(track: Track):
