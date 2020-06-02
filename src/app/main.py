@@ -2,7 +2,7 @@ import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from .queries import get_all_jobs, description_city_state, description_state, description
+from .queries import get_all_jobs, search_city_state, search_state, search_all_locations
 from .models import Search, Track
 
 app = FastAPI()
@@ -44,16 +44,18 @@ async def search_custom(search: Search):
     Endpoint to return custom search when user specifies
     the location and enters in keywords  
 
-    NOTE: will currently return the same jobs as endpoint /all  
-    We will be updating this later
+    City and state are both optional. However, if a user specifies a city,
+    there must also be a state.
     """
 
     if (search.city == None) and (search.state == None):
-        return description(search.search)
+        return search_all_locations(search.search)
     elif search.city == None:
-        return description_state(search.search, search.state)
+        return search_state(search.search, search.state)
+    elif search.state == None:
+        return {"error":"City must be accompanied by a state"}
     else:
-        return description_city_state(search.search, search.city, search.state)
+        return search_city_state(search.search, search.city, search.state)
 
 @app.post("/track/")
 async def search_by_track(track: Track):
