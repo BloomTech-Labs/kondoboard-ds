@@ -53,9 +53,10 @@ async def search_custom(search: Search):
     elif search.city == None:
         return search_state(search.search, search.state)
     elif search.state == None:
-        return {"error":"City must be accompanied by a state"}
+        return {"error": "City must be accompanied by a state"}
     else:
         return search_city_state(search.search, search.city, search.state)
+
 
 @app.post("/track/")
 async def search_by_track(track: Track):

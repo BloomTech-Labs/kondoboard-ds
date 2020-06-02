@@ -59,6 +59,7 @@ def get_all_jobs():
 
     return reformatted
 
+
 def search_all_locations(search):
     """
     Query to use if user does not specify a location
@@ -69,11 +70,8 @@ def search_all_locations(search):
     query = json.dumps(
         {
             "query": {
-                "multi_match": {
-                    "query": search,
-                    "fields": ["description", "title"]
-                }
-             }
+                "multi_match": {"query": search, "fields": ["description", "title"]}
+            }
         }
     )
 
@@ -81,6 +79,7 @@ def search_all_locations(search):
     reformatted = reformat(response)
 
     return reformatted
+
 
 def search_city_state(search, city, state):
     """
@@ -96,25 +95,18 @@ def search_city_state(search, city, state):
         {
             "query": {
                 "bool": {
-                "must": [
-                    {
-                    "multi_match": {
-                    "query": search,
-                    "fields": ["description, ", "title"]
-                    }
-                    }],
-                "should": [
-                    {
-                    "match": {
-                        "location_city": city
-                    }
-                    },
-                    {
-                    "match": {
-                        "location_state": state
-                    }
-                    }
-                ]
+                    "must": [
+                        {
+                            "multi_match": {
+                                "query": search,
+                                "fields": ["description, ", "title"],
+                            }
+                        }
+                    ],
+                    "should": [
+                        {"match": {"location_city": city}},
+                        {"match": {"location_state": state}},
+                    ],
                 }
             }
         }
@@ -125,6 +117,7 @@ def search_city_state(search, city, state):
 
     return reformatted
 
+
 def search_state(search, state):
     """
     Query to use if user just specifies the state
@@ -133,24 +126,19 @@ def search_state(search, state):
 
     query = json.dumps(
         {
-        "query": {
-            "bool": {
-            "must": [
-                {
-                "multi_match": {
-                "query": search,
-                "fields": ["description", "title"]
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "multi_match": {
+                                "query": search,
+                                "fields": ["description", "title"],
+                            }
+                        }
+                    ],
+                    "should": [{"match": {"location_state": state}}],
                 }
-                }],
-            "should": [
-                {
-                "match": {
-                    "location_state": state
-                }
-                }
-            ]
             }
-        }
         }
     )
 
