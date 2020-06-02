@@ -52,9 +52,97 @@ def reformat(response_query):
 def get_all_jobs():
     """Simple Elasticsearch query that will return all jobs"""
 
-    # define query
     query = json.dumps({"query": {"match_all": {}}})
 
+    response = connect(query)
+    reformatted = reformat(response)
+
+    return reformatted
+
+
+def search_all_locations(search):
+    """
+    Query to use if user does not specify a location
+    Does a multi_match for the search string in the 
+    description and title field
+    """
+
+    query = json.dumps(
+        {
+            "query": {
+                "multi_match": {"query": search, "fields": ["description", "title"]}
+            }
+        }
+    )
+
+    response = connect(query)
+    reformatted = reformat(response)
+
+    return reformatted
+
+
+def search_city_state(search, city, state):
+    """
+    Query to call if user specifies the location 
+    they want to search in. 
+    
+    Currently using "should" clause, so the locations 
+    do not HAVE to match up-
+    will change this later when we get more jobs in.
+    """
+
+    query = json.dumps(
+        {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "multi_match": {
+                                "query": search,
+                                "fields": ["description, ", "title"],
+                            }
+                        }
+                    ],
+                    "should": [
+                        {"match": {"location_city": city}},
+                        {"match": {"location_state": state}},
+                    ],
+                }
+            }
+        }
+    )
+
+    response = connect(query)
+    reformatted = reformat(response)
+
+    return reformatted
+
+
+def search_state(search, state):
+    """
+    Query to use if user just specifies the state
+    that they want to search in
+    """
+
+    query = json.dumps(
+        {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "multi_match": {
+                                "query": search,
+                                "fields": ["description", "title"],
+                            }
+                        }
+                    ],
+                    "should": [{"match": {"location_state": state}}],
+                }
+            }
+        }
+    )
+
+    print(query)
     response = connect(query)
     reformatted = reformat(response)
 
