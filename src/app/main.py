@@ -2,7 +2,7 @@ import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from .queries import get_all_jobs
+from .queries import get_all_jobs, description_city_state, description_state, description
 from .models import Search, Track
 
 app = FastAPI()
@@ -48,9 +48,12 @@ async def search_custom(search: Search):
     We will be updating this later
     """
 
-    all = get_all_jobs()
-    return all
-
+    if (search.city == None) and (search.state == None):
+        return description(search.search)
+    elif search.city == None:
+        return description_state(search.search, search.state)
+    else:
+        return description_city_state(search.search, search.city, search.state)
 
 @app.post("/track/")
 async def search_by_track(track: Track):

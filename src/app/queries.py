@@ -52,9 +52,96 @@ def reformat(response_query):
 def get_all_jobs():
     """Simple Elasticsearch query that will return all jobs"""
 
-    # define query
     query = json.dumps({"query": {"match_all": {}}})
 
+    response = connect(query)
+    reformatted = reformat(response)
+
+    return reformatted
+
+def description(search):
+    """
+    Only matches description
+    Used if user does not provide location
+    """
+
+    query = json.dumps(
+        {
+            "query": {
+                "multi_match": {
+                    "query": search,
+                    "fields": ["description", "title"]
+                }
+             }
+        }
+    )
+
+    response = connect(query)
+    reformatted = reformat(response)
+
+    return reformatted
+
+def description_city_state(search, city, state):
+
+    query = json.dumps(
+        {
+            "query": {
+                "bool": {
+                "must": [
+                    {
+                    "multi_match": {
+                    "query": search,
+                    "fields": ["description, ", "title"]
+                    }
+                    }],
+                "should": [
+                    {
+                    "match": {
+                        "location_city": city
+                    }
+                    },
+                    {
+                    "match": {
+                        "location_state": state
+                    }
+                    }
+                ]
+                }
+            }
+        }
+    )
+
+    response = connect(query)
+    reformatted = reformat(response)
+
+    return reformatted
+
+def description_state(search, state):
+
+    query = json.dumps(
+        {
+        "query": {
+            "bool": {
+            "must": [
+                {
+                "multi_match": {
+                "query": search,
+                "fields": ["description", "title"]
+                }
+                }],
+            "should": [
+                {
+                "match": {
+                    "location_state": state
+                }
+                }
+            ]
+            }
+        }
+        }
+    )
+
+    print(query)
     response = connect(query)
     reformatted = reformat(response)
 

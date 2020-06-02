@@ -3,9 +3,11 @@ from pydantic import BaseModel
 
 class Search(BaseModel):
     search: str
-    location: str = None
+    city: str = None
+    state: str = None
 
 
 class Track(BaseModel):
     track: str
-    location: str = None
+    city: str = None
+    state: str = None
