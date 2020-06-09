@@ -25,6 +25,9 @@ websockets = "==8.1"
 requests = "*"
 pytest = "*"
 pipx = "*"
+boto3 = "*"
+elasticsearch = "*"
+requests-aws4auth = "*"
 
 [requires]
 python_version = "3.7"

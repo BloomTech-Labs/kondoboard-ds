@@ -1,29 +1,30 @@
 import requests
 import json
 import os
+import boto3
+from requests_aws4auth import AWS4Auth
+from elasticsearch import Elasticsearch, RequestsHttpConnection
 
-es_name = os.environ["ES_NAME"]
-es_pass = os.environ["ES_PASS"]
-es_endpoint = os.environ["ES_ENDPOINT"]
+host = os.environ["AWS_ENDPOINT"]
+region = os.environ["REGION"]
 
+service = "es"
+credentials = boto3.Session().get_credentials()
+awsauth = AWS4Auth(
+    credentials.access_key,
+    credentials.secret_key,
+    region,
+    service,
+    session_token=credentials.token,
+)
 
-def connect(query):
-    """
-    Defines elasticsearch connection
-    Connects to job index and search API
-    
-    Param query - 
-    the query to be ran
-
-    Output -
-    Elasticsearch response in json format
-    """
-    uri = f"https://{es_name}:{es_pass}@{es_endpoint}/jobs/_search"
-    headers = {"Content-Type": "application/json"}
-
-    response = requests.get(uri, headers=headers, data=query)
-    return response.json()
-
+es = Elasticsearch(
+    hosts=[host],
+    # http_auth=awsauth,
+    use_ssl=True,
+    verify_certs=True,
+    connection_class=RequestsHttpConnection,
+)
 
 def reformat(response_query):
     """
@@ -31,18 +32,18 @@ def reformat(response_query):
     """
 
     data = list()
-    for hit in response_query["hits"]["hits"]:
+    for hit in response_query["hits"]["hits"][2:]:
         data.append(
             {
                 "id": hit["_id"],
-                "source_url": hit["_source"]["post_url"],
-                "title": hit["_source"]["title"],
-                "company": hit["_source"]["company"],
-                "description": hit["_source"]["description"],
-                "date_published": hit["_source"]["publication_date"],
-                "location_city": hit["_source"]["location_city"],
-                "location_state": hit["_source"]["location_state"],
-                "geo_locat": hit["_source"]["location_point"],
+                "source_url": hit["_source"]["doc"]["post_url"],
+                "title": hit["_source"]["doc"]["title"],
+                "company": hit["_source"]["doc"]["company"],
+                "description": hit["_source"]["doc"]["description"],
+                "date_published": hit["_source"]["doc"]["publication_date"],
+                "location_city": hit["_source"]["doc"]["location_city"],
+                "location_state": hit["_source"]["doc"]["location_state"],
+                "geo_locat": hit["_source"]["doc"]["location_point"],
             }
         )
 
@@ -54,13 +55,13 @@ def get_all_jobs():
 
     query = json.dumps({"query": {"match_all": {}}})
 
-    response = connect(query)
+    response = es.search(body=query, size=50)
     reformatted = reformat(response)
 
     return reformatted
 
 
-def search_all_locations(search):
+def search_all_locations(search, lim):
     """
     Query to use if user does not specify a location
     Does a multi_match for the search string in the 
@@ -75,13 +76,13 @@ def search_all_locations(search):
         }
     )
 
-    response = connect(query)
+    response = es.search(body=query, size=lim)
     reformatted = reformat(response)
 
     return reformatted
 
 
-def search_city_state(search, city, state):
+def search_city_state(search, city, state, lim):
     """
     Query to call if user specifies the location 
     they want to search in. 
@@ -96,12 +97,10 @@ def search_city_state(search, city, state):
             "query": {
                 "bool": {
                     "must": [
-                        {
-                            "multi_match": {
+                        {"multi_match": {
                                 "query": search,
                                 "fields": ["description, ", "title"],
-                            }
-                        }
+                                }}
                     ],
                     "should": [
                         {"match": {"location_city": city}},
@@ -112,13 +111,13 @@ def search_city_state(search, city, state):
         }
     )
 
-    response = connect(query)
+    response = es.search(body=query, size=lim)
     reformatted = reformat(response)
 
     return reformatted
 
 
-def search_state(search, state):
+def search_state(search, state, lim):
     """
     Query to use if user just specifies the state
     that they want to search in
@@ -142,8 +141,7 @@ def search_state(search, state):
         }
     )
 
-    print(query)
-    response = connect(query)
+    response = es.search(body=query, size=lim)
     reformatted = reformat(response)
 
     return reformatted
