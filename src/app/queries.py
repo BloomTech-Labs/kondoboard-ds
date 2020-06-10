@@ -20,7 +20,7 @@ awsauth = AWS4Auth(
 
 es = Elasticsearch(
     hosts=[host],
-    # http_auth=awsauth,
+    http_auth=awsauth,
     use_ssl=True,
     verify_certs=True,
     connection_class=RequestsHttpConnection,
