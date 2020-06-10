@@ -61,7 +61,11 @@ async def search_custom(search: Search):
 @app.post("/user")
 async def search_user(user: User):
     """
+    Endpoint to return custom job recommendations based on a user's
+    profile preferences.
 
+    City and state are both optional. However, if a user specifies a city,
+    there must also be a state.
     """
     if (user.city == None) and (user.state == None):
         return search_all_locations(user.skills)
