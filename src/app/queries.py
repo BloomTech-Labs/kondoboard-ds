@@ -26,11 +26,12 @@ es = Elasticsearch(
     connection_class=RequestsHttpConnection,
 )
 
+
 def reformat(response_query):
     """
     Reformats elasticsearch query to remove extra information
     """
-    print(response_query)
+
     data = list()
     # first three objects hold information about response
     for hit in response_query["hits"]["hits"][3:]:
@@ -71,12 +72,12 @@ def search_all_locations(search):
 
     query = json.dumps(
         {
-        "query": {
-            "multi_match" : {
-            "query": search, 
-            "fields": [ "title", "description", "tags" ] 
+            "query": {
+                "multi_match": {
+                    "query": search,
+                    "fields": ["title", "description", "tags"],
+                }
             }
-        }
         }
     )
     response = es.search(index="jobs", body=query)
@@ -98,16 +99,16 @@ def search_city_state(search, city, state):
             "query": {
                 "bool": {
                     "must": [
-                        {"multi_match": {
+                        {
+                            "multi_match": {
                                 "query": search,
                                 "fields": ["description", "title", "tags"],
-                                }},
-                        {
-                            "match": {"location_state": state}
-                        }               
+                            }
+                        }
                     ],
                     "should": [
-                        {"match": {"location_city": city}}
+                        {"match": {"location_city": city}},
+                        {"match": {"location_state": state}},
                     ],
                 }
             }
@@ -136,11 +137,9 @@ def search_state(search, state):
                                 "query": search,
                                 "fields": ["description", "title", "tags"],
                             }
-                        },
-                        {
-                            "match": {"location_state": state}
-                        }    
+                        }
                     ],
+                    "should": [{"match": {"location_state": state}}],
                 }
             }
         }
@@ -151,49 +150,50 @@ def search_state(search, state):
 
     return reformatted
 
+
 def search_user(skills):
     """
 
     """
     query = json.dumps(
         {
-        "query": {
-            "multi_match" : {
-            "query": skills, 
-            "fields": [ "title", "description", "tags" ] 
+            "query": {
+                "multi_match": {
+                    "query": skills,
+                    "fields": ["title", "description", "tags"],
+                }
             }
-        }
         }
     )
     response = es.search(index="jobs", body=query)
     return reformat(response)
+
 
 def search_user_state(skills, state):
     """
 
     """
     query = json.dumps(
-    {
-        "query": {
-            "bool": {
-                "must": [
-                    {
-                        "multi_match": {
-                            "query": skills,
-                            "fields": ["description", "title", "tags"],
-                        }
-                    },
-                    {
-                        "match": {"location_state": state}
-                    }    
-                ],
+        {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "multi_match": {
+                                "query": skills,
+                                "fields": ["description", "title", "tags"],
+                            }
+                        },
+                        {"match": {"location_state": state}},
+                    ],
+                }
             }
         }
-    }
     )
 
     response = es.search(body=query)
     return reformat(response)
+
 
 def search_user_city_state(skills, city, state):
     """
@@ -210,17 +210,15 @@ def search_user_city_state(skills, city, state):
             "query": {
                 "bool": {
                     "must": [
-                        {"multi_match": {
+                        {
+                            "multi_match": {
                                 "query": skills,
                                 "fields": ["description", "title", "tags"],
-                                }},
-                        {
-                            "match": {"location_state": state}
-                        }               
+                            }
+                        },
+                        {"match": {"location_state": state}},
                     ],
-                    "should": [
-                        {"match": {"location_city": city}}
-                    ],
+                    "should": [{"match": {"location_city": city}}],
                 }
             }
         }

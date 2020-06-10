@@ -7,6 +7,7 @@ class Search(BaseModel):
     city: str = None
     state: str = None
 
+
 class User(BaseModel):
     user_id: int = None
     track: str = None

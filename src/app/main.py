@@ -58,17 +58,17 @@ async def search_custom(search: Search):
     else:
         return search_city_state(search.search, search.city, search.state)
 
+
 @app.post("/user")
 async def search_user(user: User):
     """
 
     """
     if (user.city == None) and (user.state == None):
-        return search_user(user.skills)
+        return search_all_locations(user.skills)
     elif user.city == None:
-        return search_user_state(user.skills, user.state)
+        return search_state(user.skills, user.state)
     elif user.state == None:
         return {"error": "City must be accompanied by a state"}
     else:
         return search_city_state(user.skills, user.city, user.state)
-
