@@ -32,18 +32,19 @@ def reformat(response_query):
     """
 
     data = list()
+    # first two objects hold information about response
     for hit in response_query["hits"]["hits"][2:]:
         data.append(
             {
                 "id": hit["_id"],
-                "source_url": hit["_source"]["doc"]["post_url"],
-                "title": hit["_source"]["doc"]["title"],
-                "company": hit["_source"]["doc"]["company"],
-                "description": hit["_source"]["doc"]["description"],
-                "date_published": hit["_source"]["doc"]["publication_date"],
-                "location_city": hit["_source"]["doc"]["location_city"],
-                "location_state": hit["_source"]["doc"]["location_state"],
-                "geo_locat": hit["_source"]["doc"]["location_point"],
+                "source_url": hit["_source"]["post_url"],
+                "title": hit["_source"]["title"],
+                "company": hit["_source"]["company"],
+                "description": hit["_source"]["description"],
+                "date_published": hit["_source"]["publication_date"],
+                "location_city": hit["_source"]["location_city"],
+                "location_state": hit["_source"]["location_state"],
+                "geo_locat": hit["_source"]["location_point"],
             }
         )
 
@@ -55,13 +56,15 @@ def get_all_jobs():
 
     query = json.dumps({"query": {"match_all": {}}})
 
-    response = es.search(body=query, size=50)
+    # add 2 because the first two objects returned by elasticsearch queries
+    # are information about the response and not job results themselves
+    response = es.search(body=query)
     reformatted = reformat(response)
 
     return reformatted
 
 
-def search_all_locations(search, lim):
+def search_all_locations(search):
     """
     Query to use if user does not specify a location
     Does a multi_match for the search string in the 
@@ -70,19 +73,19 @@ def search_all_locations(search, lim):
 
     query = json.dumps(
         {
-            "query": {
-                "multi_match": {"query": search, "fields": ["description", "title"]}
+        "query": {
+            "multi_match" : {
+            "query": search, 
+            "fields": [ "title", "description", "tags" ] 
             }
         }
+        }
     )
-
-    response = es.search(body=query, size=lim)
-    reformatted = reformat(response)
-
-    return reformatted
+    response = es.search(index="jobs", body=query)
+    return reformat(response)
 
 
-def search_city_state(search, city, state, lim):
+def search_city_state(search, city, state):
     """
     Query to call if user specifies the location 
     they want to search in. 
@@ -99,25 +102,27 @@ def search_city_state(search, city, state, lim):
                     "must": [
                         {"multi_match": {
                                 "query": search,
-                                "fields": ["description, ", "title"],
-                                }}
+                                "fields": ["description", "title", "tags"],
+                                }},
+                        {
+                            "match": {"location_state": state}
+                        }               
                     ],
                     "should": [
-                        {"match": {"location_city": city}},
-                        {"match": {"location_state": state}},
+                        {"match": {"location_city": city}}
                     ],
                 }
             }
         }
     )
 
-    response = es.search(body=query, size=lim)
+    response = es.search(index="jobs", body=query)
     reformatted = reformat(response)
 
     return reformatted
 
 
-def search_state(search, state, lim):
+def search_state(search, state):
     """
     Query to use if user just specifies the state
     that they want to search in
@@ -131,17 +136,34 @@ def search_state(search, state, lim):
                         {
                             "multi_match": {
                                 "query": search,
-                                "fields": ["description", "title"],
+                                "fields": ["description", "title", "tags"],
                             }
-                        }
+                        },
+                        {
+                            "match": {"location_state": state}
+                        }    
                     ],
-                    "should": [{"match": {"location_state": state}}],
                 }
             }
         }
     )
 
-    response = es.search(body=query, size=lim)
+    response = es.search(body=query)
     reformatted = reformat(response)
 
     return reformatted
+
+def search_user(skills):
+    """
+
+    """
+
+def search_user_state(skills, state):
+    """
+
+    """
+
+def search_user_city_state(skills, city, state):
+    """
+
+    """

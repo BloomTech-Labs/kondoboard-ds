@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from .queries import get_all_jobs, search_city_state, search_state, search_all_locations
-from .models import Search, Track, User, All
+from .models import Search, Track, User
 
 app = FastAPI()
 
@@ -29,12 +29,12 @@ async def root():
     )
 
 
-@app.get("/all")
-async def search_all():
+@app.get("/all/{lim}")
+async def search_all(lim: int = None):
     """ 
     Get endpoint to return all jobs
     """
-    all = get_all_jobs()
+    all = get_all_jobs(lim)
     return all
 
 
@@ -49,13 +49,13 @@ async def search_custom(search: Search):
     """
 
     if (search.city == None) and (search.state == None):
-        return search_all_locations(search.search, search.lim)
+        return search_all_locations(search.search)
     elif search.city == None:
-        return search_state(search.search, search.state, search.lim)
+        return search_state(search.search, search.state)
     elif search.state == None:
         return {"error": "City must be accompanied by a state"}
     else:
-        return search_city_state(search.search, search.city, search.state, search.lim)
+        return search_city_state(search.search, search.city, search.state)
 
 @app.post("/user")
 async def search_user(user: User):
