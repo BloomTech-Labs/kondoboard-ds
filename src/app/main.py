@@ -3,7 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from .queries import get_all_jobs, search_city_state, search_state, search_all_locations
-from .models import Search, Track, User
+from .queries import search_user, search_user_state, search_user_city_state
+from .models import Search, User
 
 app = FastAPI()
 
@@ -29,12 +30,12 @@ async def root():
     )
 
 
-@app.get("/all/{lim}")
-async def search_all(lim: int = None):
+@app.get("/all")
+async def search_all():
     """ 
     Get endpoint to return all jobs
     """
-    all = get_all_jobs(lim)
+    all = get_all_jobs()
     return all
 
 
@@ -62,15 +63,12 @@ async def search_user(user: User):
     """
 
     """
+    if (user.city == None) and (user.state == None):
+        return search_user(user.skills)
+    elif user.city == None:
+        return search_user_state(user.skills, user.state)
+    elif user.state == None:
+        return {"error": "City must be accompanied by a state"}
+    else:
+        return search_city_state(user.skills, user.city, user.state)
 
-@app.post("/track")
-async def search_by_track(track: Track):
-    """ 
-    Simple endpoint to return jobs recommended for
-    a specific track
-
-    NOTE: will currently return the same jobs as endpoint /all  
-    We will be updating this later
-    """
-    all = get_all_jobs()
-    return all

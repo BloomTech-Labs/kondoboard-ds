@@ -30,10 +30,10 @@ def reformat(response_query):
     """
     Reformats elasticsearch query to remove extra information
     """
-
+    print(response_query)
     data = list()
-    # first two objects hold information about response
-    for hit in response_query["hits"]["hits"][2:]:
+    # first three objects hold information about response
+    for hit in response_query["hits"]["hits"][3:]:
         data.append(
             {
                 "id": hit["_id"],
@@ -56,8 +56,6 @@ def get_all_jobs():
 
     query = json.dumps({"query": {"match_all": {}}})
 
-    # add 2 because the first two objects returned by elasticsearch queries
-    # are information about the response and not job results themselves
     response = es.search(body=query)
     reformatted = reformat(response)
 
@@ -157,13 +155,78 @@ def search_user(skills):
     """
 
     """
+    query = json.dumps(
+        {
+        "query": {
+            "multi_match" : {
+            "query": skills, 
+            "fields": [ "title", "description", "tags" ] 
+            }
+        }
+        }
+    )
+    response = es.search(index="jobs", body=query)
+    return reformat(response)
 
 def search_user_state(skills, state):
     """
 
     """
+    query = json.dumps(
+    {
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "multi_match": {
+                            "query": skills,
+                            "fields": ["description", "title", "tags"],
+                        }
+                    },
+                    {
+                        "match": {"location_state": state}
+                    }    
+                ],
+            }
+        }
+    }
+    )
+
+    response = es.search(body=query)
+    return reformat(response)
 
 def search_user_city_state(skills, city, state):
     """
-
+    Query to call if user specifies the location 
+    they want to search in. 
+    
+    Currently using "should" clause, so the locations 
+    do not HAVE to match up-
+    will change this later when we get more jobs in.
     """
+
+    query = json.dumps(
+        {
+            "query": {
+                "bool": {
+                    "must": [
+                        {"multi_match": {
+                                "query": skills,
+                                "fields": ["description", "title", "tags"],
+                                }},
+                        {
+                            "match": {"location_state": state}
+                        }               
+                    ],
+                    "should": [
+                        {"match": {"location_city": city}}
+                    ],
+                }
+            }
+        }
+    )
+
+    response = es.search(index="jobs", body=query)
+    reformatted = reformat(response)
+
+    return reformatted
