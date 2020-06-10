@@ -3,7 +3,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from .queries import get_all_jobs, search_city_state, search_state, search_all_locations
-from .queries import search_user, search_user_state, search_user_city_state
 from .models import Search, User
 
 app = FastAPI()
