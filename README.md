@@ -8,7 +8,7 @@ This repo contains the FastAPI application for Kondoboard, a platform that allow
 - [Install](#install) 
 - [Usage](#usage)
 - [Testing](#testing)
--[API](#api)
+- [API](#api)
 - [License](#license)
 
 

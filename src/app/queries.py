@@ -1,28 +1,30 @@
 import requests
 import json
 import os
+import boto3
+from requests_aws4auth import AWS4Auth
+from elasticsearch import Elasticsearch, RequestsHttpConnection
 
-es_name = os.environ["ES_NAME"]
-es_pass = os.environ["ES_PASS"]
-es_endpoint = os.environ["ES_ENDPOINT"]
+host = os.environ["AWS_ENDPOINT"]
+region = os.environ["REGION"]
 
+service = "es"
+credentials = boto3.Session().get_credentials()
+awsauth = AWS4Auth(
+    credentials.access_key,
+    credentials.secret_key,
+    region,
+    service,
+    session_token=credentials.token,
+)
 
-def connect(query):
-    """
-    Defines elasticsearch connection
-    Connects to job index and search API
-    
-    Param query - 
-    the query to be ran
-
-    Output -
-    Elasticsearch response in json format
-    """
-    uri = f"https://{es_name}:{es_pass}@{es_endpoint}/jobs/_search"
-    headers = {"Content-Type": "application/json"}
-
-    response = requests.get(uri, headers=headers, data=query)
-    return response.json()
+es = Elasticsearch(
+    hosts=[host],
+    http_auth=awsauth,
+    use_ssl=True,
+    verify_certs=True,
+    connection_class=RequestsHttpConnection,
+)
 
 
 def reformat(response_query):
@@ -31,7 +33,8 @@ def reformat(response_query):
     """
 
     data = list()
-    for hit in response_query["hits"]["hits"]:
+    # first three objects hold information about response
+    for hit in response_query["hits"]["hits"][3:]:
         data.append(
             {
                 "id": hit["_id"],
@@ -54,7 +57,7 @@ def get_all_jobs():
 
     query = json.dumps({"query": {"match_all": {}}})
 
-    response = connect(query)
+    response = es.search(body=query)
     reformatted = reformat(response)
 
     return reformatted
@@ -70,15 +73,15 @@ def search_all_locations(search):
     query = json.dumps(
         {
             "query": {
-                "multi_match": {"query": search, "fields": ["description", "title"]}
+                "multi_match": {
+                    "query": search,
+                    "fields": ["title", "description", "tags"],
+                }
             }
         }
     )
-
-    response = connect(query)
-    reformatted = reformat(response)
-
-    return reformatted
+    response = es.search(index="jobs", body=query)
+    return reformat(response)
 
 
 def search_city_state(search, city, state):
@@ -99,7 +102,7 @@ def search_city_state(search, city, state):
                         {
                             "multi_match": {
                                 "query": search,
-                                "fields": ["description, ", "title"],
+                                "fields": ["description", "title", "tags"],
                             }
                         }
                     ],
@@ -112,7 +115,7 @@ def search_city_state(search, city, state):
         }
     )
 
-    response = connect(query)
+    response = es.search(index="jobs", body=query)
     reformatted = reformat(response)
 
     return reformatted
@@ -132,7 +135,7 @@ def search_state(search, state):
                         {
                             "multi_match": {
                                 "query": search,
-                                "fields": ["description", "title"],
+                                "fields": ["description", "title", "tags"],
                             }
                         }
                     ],
@@ -142,8 +145,86 @@ def search_state(search, state):
         }
     )
 
-    print(query)
-    response = connect(query)
+    response = es.search(body=query)
+    reformatted = reformat(response)
+
+    return reformatted
+
+
+def search_user(skills):
+    """
+
+    """
+    query = json.dumps(
+        {
+            "query": {
+                "multi_match": {
+                    "query": skills,
+                    "fields": ["title", "description", "tags"],
+                }
+            }
+        }
+    )
+    response = es.search(index="jobs", body=query)
+    return reformat(response)
+
+
+def search_user_state(skills, state):
+    """
+
+    """
+    query = json.dumps(
+        {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "multi_match": {
+                                "query": skills,
+                                "fields": ["description", "title", "tags"],
+                            }
+                        },
+                        {"match": {"location_state": state}},
+                    ],
+                }
+            }
+        }
+    )
+
+    response = es.search(body=query)
+    return reformat(response)
+
+
+def search_user_city_state(skills, city, state):
+    """
+    Query to call if user specifies the location 
+    they want to search in. 
+    
+    Currently using "should" clause, so the locations 
+    do not HAVE to match up-
+    will change this later when we get more jobs in.
+    """
+
+    query = json.dumps(
+        {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "multi_match": {
+                                "query": skills,
+                                "fields": ["description", "title", "tags"],
+                            }
+                        },
+                        {"match": {"location_state": state}},
+                    ],
+                    "should": [{"match": {"location_city": city}}],
+                }
+            }
+        }
+    )
+
+    response = es.search(index="jobs", body=query)
     reformatted = reformat(response)
 
     return reformatted
