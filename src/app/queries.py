@@ -69,15 +69,21 @@ def search_all_locations(search):
     """
 
     query = json.dumps(
-        {
-            "query": {
-                "multi_match": {
-                    "query": search,
-                    "fields": ["title", "description", "tags"],
-                }
-            }
-        }
+    {"query": {
+      "bool": {
+         "should": [
+            {"multi_match": 
+            {"query": search,
+            "fields": ["description", "title", "tags"]}},
+            {"bool": {
+               "must_not": {
+                  "match": {
+                     "title": "senior master lead"
+                  }}}}
+         ]
+         }}}
     )
+    
     response = es.search(index="jobs", body=query)
     return reformat(response)
 
@@ -93,29 +99,25 @@ def search_city_state(search, city, state):
     """
 
     query = json.dumps(
-        {
-        "query": {
-            "bool": {
-            "must": [
-                {"match": {
-                "location_city": city
-                }
-                },
-                {
-                "match": {
-                    "location_state": state
-                }
-                }
-                ],
-            "should": [
-                {"multi_match": {
-                "query": search,
-                "fields": ["description", "title", "tags"]
-                }}
-            ]
-            }
-        }
-        }
+    {"query": {
+      "bool": {
+        "must": [
+            {"match":
+            {"location_city": city.title()}},
+            {"match": {
+                "location_state": state.title()}}
+            ],
+         "should": [
+            {"multi_match": 
+            {"query": search,
+            "fields": ["description", "title", "tags"]}},
+            {"bool": {
+               "must_not": {
+                  "match": {
+                     "title": "senior master lead"
+                  }}}}
+         ]
+         }}}
     )
 
     response = es.search(index="jobs", body=query)
@@ -131,25 +133,23 @@ def search_state(search, state):
     """
 
     query = json.dumps(
-        {
-        "query": {
-            "bool": {
-            "must": [
-                {
-                "match": {
-                    "location_state": state
-                }
-                }
-                ],
-            "should": [
-                {"multi_match": {
-                "query": search,
-                "fields": ["description", "title", "tags"]
-                }}
-            ]
-            }
-        }
-        }
+    {"query": {
+      "bool": {
+        "must": [
+            {"match": {
+                "location_state": state.title()}}
+            ],
+         "should": [
+            {"multi_match": 
+            {"query": search,
+            "fields": ["description", "title", "tags"]}},
+            {"bool": {
+               "must_not": {
+                  "match": {
+                     "title": "senior master lead"
+                  }}}}
+         ]
+         }}}
     )
     
     response = es.search(index="jobs", body=query)
