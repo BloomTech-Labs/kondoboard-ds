@@ -33,8 +33,7 @@ def reformat(response_query):
     """
 
     data = list()
-    # first three objects hold information about response
-    for hit in response_query["hits"]["hits"][3:]:
+    for hit in response_query["hits"]["hits"]:
         data.append(
             {
                 "id": hit["_id"],
@@ -57,9 +56,8 @@ def get_all_jobs():
 
     query = json.dumps({"query": {"match_all": {}}})
 
-    response = es.search(body=query)
+    response = es.search(body=query, index="jobs")
     reformatted = reformat(response)
-
     return reformatted
 
 
@@ -67,19 +65,33 @@ def search_all_locations(search):
     """
     Query to use if user does not specify a location
     Does a multi_match for the search string in the 
-    description and title field
+    description and title field 
+    Penalizes any positions with senior, master, and lead 
+    in the title
     """
 
     query = json.dumps(
         {
             "query": {
-                "multi_match": {
-                    "query": search,
-                    "fields": ["title", "description", "tags"],
+                "bool": {
+                    "should": [
+                        {
+                            "multi_match": {
+                                "query": search,
+                                "fields": ["description", "title", "tags"],
+                            }
+                        },
+                        {
+                            "bool": {
+                                "must_not": {"match": {"title": "senior master lead"}}
+                            }
+                        },
+                    ]
                 }
             }
         }
     )
+
     response = es.search(index="jobs", body=query)
     return reformat(response)
 
@@ -89,9 +101,12 @@ def search_city_state(search, city, state):
     Query to call if user specifies the location 
     they want to search in. 
     
-    Currently using "should" clause, so the locations 
-    do not HAVE to match up-
-    will change this later when we get more jobs in.
+    Job posting MUST match the location, and then
+    its relevancy score is increased as more search
+    terms are in the description, title, or tags. 
+
+    Job postings are penalized if they have lead, master,
+    or senior in the title.
     """
 
     query = json.dumps(
@@ -99,16 +114,21 @@ def search_city_state(search, city, state):
             "query": {
                 "bool": {
                     "must": [
+                        {"match": {"location_city": city.title()}},
+                        {"match": {"location_state": state.title()}},
+                    ],
+                    "should": [
                         {
                             "multi_match": {
                                 "query": search,
                                 "fields": ["description", "title", "tags"],
                             }
-                        }
-                    ],
-                    "should": [
-                        {"match": {"location_city": city}},
-                        {"match": {"location_state": state}},
+                        },
+                        {
+                            "bool": {
+                                "must_not": {"match": {"title": "senior master lead"}}
+                            }
+                        },
                     ],
                 }
             }
@@ -131,94 +151,20 @@ def search_state(search, state):
         {
             "query": {
                 "bool": {
-                    "must": [
+                    "must": [{"match": {"location_state": state.title()}}],
+                    "should": [
                         {
                             "multi_match": {
                                 "query": search,
                                 "fields": ["description", "title", "tags"],
                             }
-                        }
-                    ],
-                    "should": [{"match": {"location_state": state}}],
-                }
-            }
-        }
-    )
-
-    response = es.search(body=query)
-    reformatted = reformat(response)
-
-    return reformatted
-
-
-def search_user(skills):
-    """
-
-    """
-    query = json.dumps(
-        {
-            "query": {
-                "multi_match": {
-                    "query": skills,
-                    "fields": ["title", "description", "tags"],
-                }
-            }
-        }
-    )
-    response = es.search(index="jobs", body=query)
-    return reformat(response)
-
-
-def search_user_state(skills, state):
-    """
-
-    """
-    query = json.dumps(
-        {
-            "query": {
-                "bool": {
-                    "must": [
+                        },
                         {
-                            "multi_match": {
-                                "query": skills,
-                                "fields": ["description", "title", "tags"],
+                            "bool": {
+                                "must_not": {"match": {"title": "senior master lead"}}
                             }
                         },
-                        {"match": {"location_state": state}},
                     ],
-                }
-            }
-        }
-    )
-
-    response = es.search(body=query)
-    return reformat(response)
-
-
-def search_user_city_state(skills, city, state):
-    """
-    Query to call if user specifies the location 
-    they want to search in. 
-    
-    Currently using "should" clause, so the locations 
-    do not HAVE to match up-
-    will change this later when we get more jobs in.
-    """
-
-    query = json.dumps(
-        {
-            "query": {
-                "bool": {
-                    "must": [
-                        {
-                            "multi_match": {
-                                "query": skills,
-                                "fields": ["description", "title", "tags"],
-                            }
-                        },
-                        {"match": {"location_state": state}},
-                    ],
-                    "should": [{"match": {"location_city": city}}],
                 }
             }
         }
