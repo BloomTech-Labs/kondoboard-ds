@@ -8,7 +8,7 @@ class Search(BaseModel):
 
 
 class User(BaseModel):
-    user_id: int = None
+    user_id: str = None
     track: str = None
     skills: str = None
     city: str = None
