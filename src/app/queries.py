@@ -33,7 +33,6 @@ def reformat(response_query):
     """
 
     data = list()
-    # first three objects hold information about response
     for hit in response_query["hits"]["hits"]:
         data.append(
             {
@@ -95,22 +94,27 @@ def search_city_state(search, city, state):
 
     query = json.dumps(
         {
-            "query": {
-                "bool": {
-                    "must": [
-                        {
-                            "multi_match": {
-                                "query": search,
-                                "fields": ["description", "title", "tags"],
-                            }
-                        }
-                    ],
-                    "should": [
-                        {"match": {"location_city": city}},
-                        {"match": {"location_state": state}},
-                    ],
+        "query": {
+            "bool": {
+            "must": [
+                {"match": {
+                "location_city": city
                 }
+                },
+                {
+                "match": {
+                    "location_state": state
+                }
+                }
+                ],
+            "should": [
+                {"multi_match": {
+                "query": search,
+                "fields": ["description", "title", "tags"]
+                }}
+            ]
             }
+        }
         }
     )
 
@@ -128,23 +132,27 @@ def search_state(search, state):
 
     query = json.dumps(
         {
-            "query": {
-                "bool": {
-                    "must": [
-                        {
-                            "multi_match": {
-                                "query": search,
-                                "fields": ["description", "title", "tags"],
-                            }
-                        }
-                    ],
-                    "should": [{"match": {"location_state": state}}],
+        "query": {
+            "bool": {
+            "must": [
+                {
+                "match": {
+                    "location_state": state
                 }
+                }
+                ],
+            "should": [
+                {"multi_match": {
+                "query": search,
+                "fields": ["description", "title", "tags"]
+                }}
+            ]
             }
         }
+        }
     )
-
-    response = es.search(body=query)
+    
+    response = es.search(index="jobs", body=query)
     reformatted = reformat(response)
 
     return reformatted
