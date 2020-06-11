@@ -20,7 +20,7 @@ awsauth = AWS4Auth(
 
 es = Elasticsearch(
     hosts=[host],
-    http_auth=awsauth,
+    # http_auth=awsauth,
     use_ssl=True,
     verify_certs=True,
     connection_class=RequestsHttpConnection,
@@ -34,7 +34,7 @@ def reformat(response_query):
 
     data = list()
     # first three objects hold information about response
-    for hit in response_query["hits"]["hits"][3:]:
+    for hit in response_query["hits"]["hits"]:
         data.append(
             {
                 "id": hit["_id"],
@@ -57,9 +57,8 @@ def get_all_jobs():
 
     query = json.dumps({"query": {"match_all": {}}})
 
-    response = es.search(body=query)
+    response = es.search(body=query, index='jobs')
     reformatted = reformat(response)
-
     return reformatted
 
 
