@@ -1,9 +1,13 @@
 import requests
+import logging
 import json
 import os
 import boto3
 from requests_aws4auth import AWS4Auth
 from elasticsearch import Elasticsearch, RequestsHttpConnection
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s:%(name)s:%(message)s')
 
 host = os.environ["AWS_ENDPOINT"]
 region = os.environ["REGION"]
@@ -20,7 +24,7 @@ awsauth = AWS4Auth(
 
 es = Elasticsearch(
     hosts=[host],
-    http_auth=awsauth,
+    # http_auth=awsauth,
     use_ssl=True,
     verify_certs=True,
     connection_class=RequestsHttpConnection,
@@ -48,17 +52,24 @@ def reformat(response_query):
             }
         )
 
+    logging.info(f"Reformatted {len(data)} returned responses")
+    
     return {"jobs": data}
 
 
 def get_all_jobs():
     """Simple Elasticsearch query that will return all jobs"""
-
+    
+    logging.info("Grabbing all jobs:")
+    
     query = json.dumps({"query": {"match_all": {}}})
 
     response = es.search(body=query, index="jobs")
-    reformatted = reformat(response)
-    return reformatted
+    
+    logging.info(f"Total number of hits: {response['hits']['total']['value']}")
+    logging.info(f"Total number of returned responses: {len(response['hits']['hits'])}")
+
+    return reformat(response)
 
 
 def search_all_locations(search):
@@ -69,6 +80,8 @@ def search_all_locations(search):
     Penalizes any positions with senior, master, and lead 
     in the title
     """
+
+    logging.info("Searching through all locations:")
 
     query = json.dumps(
         {
@@ -93,6 +106,10 @@ def search_all_locations(search):
     )
 
     response = es.search(index="jobs", body=query)
+    
+    logging.info(f"Total number of hits: {response['hits']['total']['value']}")
+    logging.info(f"Total number of returned responses: {len(response['hits']['hits'])}")
+    
     return reformat(response)
 
 
@@ -108,6 +125,8 @@ def search_city_state(search, city, state):
     Job postings are penalized if they have lead, master,
     or senior in the title.
     """
+
+    logging.info(f"Searching through {city} city and {state} state:")
 
     query = json.dumps(
         {
@@ -136,9 +155,11 @@ def search_city_state(search, city, state):
     )
 
     response = es.search(index="jobs", body=query)
-    reformatted = reformat(response)
 
-    return reformatted
+    logging.info(f"Total number of hits: {response['hits']['total']['value']}")
+    logging.info(f"Total number of returned responses: {len(response['hits']['hits'])}")
+    
+    return reformat(response)
 
 
 def search_state(search, state):
@@ -146,6 +167,7 @@ def search_state(search, state):
     Query to use if user just specifies the state
     that they want to search in
     """
+    logging.info(f"Searching through {state} state:")
 
     query = json.dumps(
         {
@@ -171,6 +193,8 @@ def search_state(search, state):
     )
 
     response = es.search(index="jobs", body=query)
-    reformatted = reformat(response)
 
-    return reformatted
+    logging.info(f"Total number of hits: {response['hits']['total']['value']}")
+    logging.info(f"Total number of returned responses: {len(response['hits']['hits'])}")
+
+    return reformat(response)

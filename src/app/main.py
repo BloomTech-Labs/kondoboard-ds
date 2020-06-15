@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,6 +48,8 @@ async def search_custom(search: Search):
     City and state are both optional. However, if a user specifies a city,
     there must also be a state.
     """
+    logging.info("-"*20)
+    logging.info(f"Search: {search.search} City: {search.city} State: {search.state}")
 
     if (search.city == None) and (search.state == None):
         return search_all_locations(search.search)
@@ -67,6 +70,8 @@ async def search_user(user: User):
     City and state are both optional. However, if a user specifies a city,
     there must also be a state.
     """
+    logging.info("-"*20)
+    logging.info(f"User skills: {user.skills} City: {user.city} State: {user.state}")
     if (user.city == None) and (user.state == None):
         return search_all_locations(user.skills)
     elif user.city == None:
