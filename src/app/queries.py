@@ -23,7 +23,7 @@ awsauth = AWS4Auth(
 
 es = Elasticsearch(
     hosts=[host],
-    # http_auth=awsauth,
+    http_auth=awsauth,
     use_ssl=True,
     verify_certs=True,
     connection_class=RequestsHttpConnection,
@@ -31,6 +31,12 @@ es = Elasticsearch(
 
 
 def logging_response(response):
+    """
+    Takes in a response object returned from elasticsearch,
+    logs results based on that object like:
+    Number of ES hits
+    Number of returned responses
+    """
     logging.info(f"Total number of ES hits: {response['hits']['total']['value']}")
     if len(response["hits"]["hits"]) == 0:
         logging.error("There are zero returned matches")
