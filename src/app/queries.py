@@ -29,11 +29,16 @@ es = Elasticsearch(
     connection_class=RequestsHttpConnection,
 )
 
+
 def logging_response(response):
     logging.info(f"Total number of ES hits: {response['hits']['total']['value']}")
-    if len(response['hits']['hits']) == 0:
+    if len(response["hits"]["hits"]) == 0:
         logging.error("There are zero returned matches")
-    else: logging.info(f"Total number of returned responses: {len(response['hits']['hits'])}")
+    else:
+        logging.info(
+            f"Total number of returned responses: {len(response['hits']['hits'])}"
+        )
+
 
 def reformat(response_query):
     """
@@ -64,7 +69,7 @@ def reformat(response_query):
 def get_all_jobs():
     """Simple Elasticsearch query that will return all jobs"""
 
-    logging.info("="*50)
+    logging.info("=" * 50)
     logging.info("Grabbing all jobs:")
 
     query = json.dumps({"query": {"match_all": {}}})
@@ -84,8 +89,8 @@ def search_all_locations(search):
     Penalizes any positions with senior, master, and lead 
     in the title
     """
-    
-    logging.info("="*50)
+
+    logging.info("=" * 50)
     logging.info("Searching through all locations:")
 
     query = json.dumps(
@@ -130,7 +135,7 @@ def search_city_state(search, city, state):
     or senior in the title.
     """
 
-    logging.info("="*50)
+    logging.info("=" * 50)
     logging.info(f"Searching through {city} city and {state} state:")
 
     query = json.dumps(
@@ -171,8 +176,8 @@ def search_state(search, state):
     Query to use if user just specifies the state
     that they want to search in
     """
-    
-    logging.info("="*50)
+
+    logging.info("=" * 50)
     logging.info(f"Searching through {state} state:")
 
     query = json.dumps(
