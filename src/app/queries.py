@@ -6,8 +6,7 @@ import boto3
 from requests_aws4auth import AWS4Auth
 from elasticsearch import Elasticsearch, RequestsHttpConnection
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s:%(name)s:%(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s:%(name)s:%(message)s")
 
 host = os.environ["AWS_ENDPOINT"]
 region = os.environ["REGION"]
@@ -53,19 +52,19 @@ def reformat(response_query):
         )
 
     logging.info(f"Reformatted {len(data)} returned responses")
-    
+
     return {"jobs": data}
 
 
 def get_all_jobs():
     """Simple Elasticsearch query that will return all jobs"""
-    
+
     logging.info("Grabbing all jobs:")
-    
+
     query = json.dumps({"query": {"match_all": {}}})
 
     response = es.search(body=query, index="jobs")
-    
+
     logging.info(f"Total number of hits: {response['hits']['total']['value']}")
     logging.info(f"Total number of returned responses: {len(response['hits']['hits'])}")
 
@@ -106,10 +105,10 @@ def search_all_locations(search):
     )
 
     response = es.search(index="jobs", body=query)
-    
+
     logging.info(f"Total number of hits: {response['hits']['total']['value']}")
     logging.info(f"Total number of returned responses: {len(response['hits']['hits'])}")
-    
+
     return reformat(response)
 
 
@@ -158,7 +157,7 @@ def search_city_state(search, city, state):
 
     logging.info(f"Total number of hits: {response['hits']['total']['value']}")
     logging.info(f"Total number of returned responses: {len(response['hits']['hits'])}")
-    
+
     return reformat(response)
 
 
