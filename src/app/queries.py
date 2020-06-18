@@ -6,8 +6,7 @@ import boto3
 from requests_aws4auth import AWS4Auth
 from elasticsearch import Elasticsearch, RequestsHttpConnection
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s:%(name)s:%(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s:%(name)s:%(message)s")
 
 host = os.environ["AWS_ENDPOINT"]
 region = os.environ["REGION"]
@@ -18,16 +17,32 @@ awsauth = AWS4Auth(
     credentials.access_key,
     credentials.secret_key,
     region,
-    service
+    service,
 )
 
 es = Elasticsearch(
     hosts=[host],
-    # http_auth=awsauth,
+    http_auth=awsauth,
     use_ssl=True,
     verify_certs=True,
     connection_class=RequestsHttpConnection,
 )
+
+
+def logging_response(response):
+    """
+    Takes in a response object returned from elasticsearch,
+    logs results based on that object like:
+    Number of ES hits
+    Number of returned responses
+    """
+    logging.info(f"Total number of ES hits: {response['hits']['total']['value']}")
+    if len(response["hits"]["hits"]) == 0:
+        logging.error("There are zero returned matches")
+    else:
+        logging.info(
+            f"Total number of returned responses: {len(response['hits']['hits'])}"
+        )
 
 
 def reformat(response_query):
@@ -52,21 +67,21 @@ def reformat(response_query):
         )
 
     logging.info(f"Reformatted {len(data)} returned responses")
-    
+
     return {"jobs": data}
 
 
 def get_all_jobs():
     """Simple Elasticsearch query that will return all jobs"""
-    
+
+    logging.info("=" * 50)
     logging.info("Grabbing all jobs:")
-    
+
     query = json.dumps({"query": {"match_all": {}}})
 
     response = es.search(body=query, index="jobs")
-    
-    logging.info(f"Total number of hits: {response['hits']['total']['value']}")
-    logging.info(f"Total number of returned responses: {len(response['hits']['hits'])}")
+
+    logging_response(response)
 
     return reformat(response)
 
@@ -80,6 +95,7 @@ def search_all_locations(search):
     in the title
     """
 
+    logging.info("=" * 50)
     logging.info("Searching through all locations:")
 
     query = json.dumps(
@@ -105,10 +121,9 @@ def search_all_locations(search):
     )
 
     response = es.search(index="jobs", body=query)
-    
-    logging.info(f"Total number of hits: {response['hits']['total']['value']}")
-    logging.info(f"Total number of returned responses: {len(response['hits']['hits'])}")
-    
+
+    logging_response(response)
+
     return reformat(response)
 
 
@@ -125,6 +140,7 @@ def search_city_state(search, city, state):
     or senior in the title.
     """
 
+    logging.info("=" * 50)
     logging.info(f"Searching through {city} city and {state} state:")
 
     query = json.dumps(
@@ -155,9 +171,8 @@ def search_city_state(search, city, state):
 
     response = es.search(index="jobs", body=query)
 
-    logging.info(f"Total number of hits: {response['hits']['total']['value']}")
-    logging.info(f"Total number of returned responses: {len(response['hits']['hits'])}")
-    
+    logging_response(response)
+
     return reformat(response)
 
 
@@ -166,6 +181,8 @@ def search_state(search, state):
     Query to use if user just specifies the state
     that they want to search in
     """
+
+    logging.info("=" * 50)
     logging.info(f"Searching through {state} state:")
 
     query = json.dumps(
@@ -193,7 +210,6 @@ def search_state(search, state):
 
     response = es.search(index="jobs", body=query)
 
-    logging.info(f"Total number of hits: {response['hits']['total']['value']}")
-    logging.info(f"Total number of returned responses: {len(response['hits']['hits'])}")
+    logging_response(response)
 
     return reformat(response)
