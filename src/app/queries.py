@@ -18,8 +18,7 @@ awsauth = AWS4Auth(
     credentials.access_key,
     credentials.secret_key,
     region,
-    service,
-    session_token=credentials.token,
+    service
 )
 
 es = Elasticsearch(
