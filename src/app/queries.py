@@ -3,6 +3,7 @@ import logging
 import json
 import os
 import boto3
+from boto.connection import AWSAuthConnection
 from requests_aws4auth import AWS4Auth
 from elasticsearch import Elasticsearch, RequestsHttpConnection
 
@@ -10,26 +11,38 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s:%(name)s:%(message)s
 
 host = os.environ["AWS_ENDPOINT"]
 region = os.environ["REGION"]
-
 service = "es"
-credentials = boto3.Session().get_credentials()
-awsauth = AWS4Auth(
-    credentials.access_key,
-    credentials.secret_key,
-    region,
-    service,
-    session_token=credentials.token,
-)
 
-es = Elasticsearch(
-    hosts=[host],
-    http_auth=awsauth,
-    use_ssl=True,
-    verify_certs=True,
-    connection_class=RequestsHttpConnection,
-    
+class ESConnection(AWSAuthConnection):
+    def __init__(self, region, **kwargs):
+        super(ESConnection, self).__init__(**kwargs)
+        self._set_auth_region_name(region)
+        self._set_auth_service_name("es")
 
-)
+
+es = ESConnection(
+    region=region, 
+    host=host,
+    is_secure=False)
+
+# es = Elasticsearch()
+
+# credentials = boto3.Session().get_credentials()
+# awsauth = AWS4Auth(
+#     credentials.access_key,
+#     credentials.secret_key,
+#     region,
+#     service,
+#     session_token=credentials.token,
+# )
+
+# es = Elasticsearch(
+#     hosts=[host],
+#     http_auth=awsauth,
+#     use_ssl=True,
+#     verify_certs=True,
+#     connection_class=RequestsHttpConnection,
+# )
 
 
 def logging_response(response):
