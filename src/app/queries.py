@@ -3,7 +3,6 @@ import logging
 import json
 import os
 import boto3
-from boto.connection import AWSAuthConnection
 from requests_aws4auth import AWS4Auth
 from elasticsearch import Elasticsearch, RequestsHttpConnection
 
@@ -15,7 +14,6 @@ service = "es"
 
 session = boto3.Session()
 credentials = session.get_credentials()
-
 awsauth = AssumeRoleAWS4Auth(credentials, region, service)
 
 es = Elasticsearch(
@@ -25,9 +23,6 @@ es = Elasticsearch(
     verify_certs=True,
     connection_class=RequestsHttpConnection,
 )
-
-
-# es = Elasticsearch()
 
 # credentials = boto3.Session().get_credentials()
 # awsauth = AWS4Auth(
