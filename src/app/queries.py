@@ -13,17 +13,19 @@ host = os.environ["AWS_ENDPOINT"]
 region = os.environ["REGION"]
 service = "es"
 
-class ESConnection(AWSAuthConnection):
-    def __init__(self, region, **kwargs):
-        super(ESConnection, self).__init__(**kwargs)
-        self._set_auth_region_name(region)
-        self._set_auth_service_name("es")
+session = boto3.Session()
+credentials = session.get_credentials()
 
+awsauth = AssumeRoleAWS4Auth(credentials, region, service)
 
-es = ESConnection(
-    region=region, 
-    host=host,
-    is_secure=False)
+es = Elasticsearch(
+    hosts=[host],
+    http_auth=awsauth,
+    use_ssl=True,
+    verify_certs=True,
+    connection_class=RequestsHttpConnection,
+)
+
 
 # es = Elasticsearch()
 
