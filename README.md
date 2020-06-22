@@ -26,12 +26,15 @@ We created C4 diagrams to communicate the software architecture
 
 ## Install
 ```
+pip install -r requirements.txt
 ```
 ## Usage
 ```
+uvicorn main:app --reload
 ```
 ## Testing
 ```
+pytest
 ```
 ## API
 
