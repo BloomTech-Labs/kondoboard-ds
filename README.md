@@ -1,9 +1,8 @@
 # kondoboard-ds
 
-This repo contains the FastAPI application for Kondoboard, a platform that allows Lambda School students to browse, save, and track job postings during the job hunt. 
+This repo contains the Data Science API for Kondoboard, a platform that allows Lambda School students to browse, save, and track job postings during the job hunt. 
 
 ## Table of Contents
-- [Background](#background)
 - [Diagrams](#diagrams)
 - [Install](#install) 
 - [Usage](#usage)
@@ -11,10 +10,6 @@ This repo contains the FastAPI application for Kondoboard, a platform that allow
 - [API](#api)
 - [License](#license)
 
-
-## Background
-```
-```
 
 ## Diagrams
 We created C4 diagrams to communicate the software architecture
